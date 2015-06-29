@@ -18,14 +18,14 @@ def main():
 	user = input("Please enter your Username: ")
 	pw = input("Please enter your Password: ")
 	sub = input("Please enter the desired Subreddit: ")
-	# setting up User Agent ()
-	r = praw.Reddit('Eduard Laser Bot by u/Ekrow v0.2'
+	# setting up User Agent
+	r = praw.Reddit('Eduard Laser Parser by u/Ekrow v0.2'
 					'Url: http://www.ekrow.de')
 	r.login(user, pw)
 	subreddit = r.get_subreddit(sub)
 	bot = r.get_redditor(user)
 
-	### the keywords which the bot reacts to and their given replies. There is probably a better way but I suck at Python ###
+	### the keywords which the bot reacts to and their given replies and a footer text. There is probably a better way but I suck at Python ###
 	keywords = ['Lauchboy', "Nebel", "Nilsoff", "Laserdojo", "Laserschelle", "Laserkick", "Laserstern", "Laserschellen", "Laserkicks", "Freiheit", "Eduard Laser"]
 	replies = {
 				"Freiheit": "Freiheit ist mir wichtig!", 
@@ -40,6 +40,7 @@ def main():
 				"Laserstern" : "Laserstern!",
 				"Eduard Laser" : "Für dich immer noch Eduard 'Unmöglich' Laser!"
 		}
+	footer_txt = "\n \n [Source](https://github.com/Ekrow/EduardLaserBot/)" 
 
 	already_done = set()
 	submission_already_done = set()
@@ -66,7 +67,7 @@ def main():
 			op_text = submission.selftext
 			op_has_keyword = any(string in op_text for string in keywords)
 			if submission.id not in submission_already_done and op_has_keyword:
-				submission.add_comment('Freiheit ist dem OP wichtig')
+				submission.add_comment('Freiheit ist dem OP wichtig' + footer_txt)
 				print("Matched keyword in OP")
 				cursor.execute("""INSERT INTO parsed_submission (id, submission_id) VALUES (NULL, ?);""", [submission.id])
 				submission_already_done.add(submission.id)
@@ -81,15 +82,14 @@ def main():
 						if comment.id not in already_done and has_keyword:
 							chk = check_keyword(keywords, comment.body)
 							print("Found keyword " + chk)
-							comment.reply(replies[chk])
-							print(replies[chk])
+							comment.reply(replies[chk] + footer_txt)
 							cursor.execute("""INSERT INTO parsed (id, comment_id) VALUES (NULL, ?);""", [comment.id])
 							already_done.add(comment.id)
 							connection.commit()
 							cnt += 1
 				except:
 					print("Found an error somewhere..") # too lazy to add worthwhile catches lol, just skip this
-		print("Couldn't find any keywords. Trying again in 10 minutes. I commented " + str(cnt) + " times")
+		print("Parsing done. Trying again in 10 minutes. I commented " + str(cnt) + " times")
 		cnt = 0
 		time.sleep(1000)
 	connection.close()
