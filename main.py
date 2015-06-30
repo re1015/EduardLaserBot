@@ -26,7 +26,7 @@ def main():
 	bot = r.get_redditor(user)
 
 	### the keywords which the bot reacts to and their given replies and a footer text. There is probably a better way but I suck at Python ###
-	keywords = ['Lauchboy', "Nebel", "Nilsoff", "Laserdojo", "Laserschelle", "Laserkick", "Laserstern", "Laserschellen", "Laserkicks", "Freiheit", "Eduard Laser"]
+	keywords = ['Lauchboy', "Nebel", "Nilsoff", "Laserdojo", "Laserschelle", "Laserkick", "Laserstern", "Laserschellen", "Laserkicks", "Freiheit", "Eduard Laser", "Unmöglich"]
 	replies = {
 				"Freiheit": "Freiheit ist mir wichtig!", 
 				"Lauchboy" : "Was redest du über meinen Sohn? Willste 'ne Laserschelle, oder was?", 
@@ -38,7 +38,8 @@ def main():
 				"Laserkick" : "Laserkick!",
 				"Laserkicks" : "Laserkick!",
 				"Laserstern" : "Laserstern!",
-				"Eduard Laser" : "Für dich immer noch Eduard 'Unmöglich' Laser!"
+				"Eduard Laser" : "Für dich immer noch Eduard 'Unmöglich' Laser!",
+				"Unmöglich" : "Unmöglich ist mein zweiter Name!"
 		}
 	footer_txt = "\n \n [Source](https://github.com/Ekrow/EduardLaserBot/)" 
 
@@ -62,18 +63,21 @@ def main():
 
 	print("All set. Ready to parse")
 	while True:
-		for submission in subreddit.get_hot(limit=25):
-			print("Checking Submission:" + submission.title + "(" + submission.id + ")")
-			op_text = submission.selftext
-			op_has_keyword = any(string in op_text for string in keywords)
-			if submission.id not in submission_already_done and op_has_keyword:
-				submission.add_comment('Freiheit ist dem OP wichtig' + footer_txt)
-				print("Matched keyword in OP")
-				cursor.execute("""INSERT INTO parsed_submission (id, submission_id) VALUES (NULL, ?);""", [submission.id])
-				submission_already_done.add(submission.id)
-				connection.commit()
-				cnt += 1
-			flat_comments = praw.helpers.flatten_tree(submission.comments)
+		for submission in subreddit.get_hot(limit=50):
+			try:
+				print("Checking Submission:" + submission.title + "(" + submission.id + ")")
+				op_text = submission.selftext
+				op_has_keyword = any(string in op_text for string in keywords)
+				if submission.id not in submission_already_done and op_has_keyword:
+					submission.add_comment('Freiheit ist dem OP wichtig' + footer_txt)
+					print("Matched keyword in OP")
+					cursor.execute("""INSERT INTO parsed_submission (id, submission_id) VALUES (NULL, ?);""", [submission.id])
+					submission_already_done.add(submission.id)
+					connection.commit()
+					cnt += 1
+				flat_comments = praw.helpers.flatten_tree(submission.comments)
+			except:
+				print("Found an error somewhere..") # too lazy to add worthwhile catches lol, just skip this for now
 			for comment in flat_comments:
 				try:
 					author = comment.author
@@ -88,7 +92,7 @@ def main():
 							connection.commit()
 							cnt += 1
 				except:
-					print("Found an error somewhere..") # too lazy to add worthwhile catches lol, just skip this
+					print("Found an error somewhere..") # too lazy to add worthwhile catches lol, just skip this for now
 		print("Parsing done. Trying again in 10 minutes. I commented " + str(cnt) + " times")
 		cnt = 0
 		time.sleep(1000)
