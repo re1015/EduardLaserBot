@@ -26,7 +26,7 @@ def main():
 	bot = r.get_redditor(user)
 
 	### the keywords which the bot reacts to and their given replies and a footer text. There is probably a better way but I suck at Python ###
-	keywords = ['Lauchboy', "Nebel", "Nilsoff", "Laserdojo", "Laserschelle", "Laserkick", "Laserstern", "Laserschellen", "Laserkicks", "Freiheit", "Eduard Laser", "Unmöglich"]
+	keywords = ['Lauchboy', "Nebel", "Nilshoff", "Laserdojo", "Laserschelle", "Laserkick", "Laserstern", "Laserschellen", "Laserkicks", "Freiheit", "Eduard Laser", "Unmöglich"]
 	replies = {
 				"Freiheit": "Freiheit ist mir wichtig!", 
 				"Lauchboy" : "Was redest du über meinen Sohn? Willste 'ne Laserschelle, oder was?", 
